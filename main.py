@@ -1,8 +1,7 @@
 import cv2
 import mediapipe
-from mediapipe.python.solutions import hands as mpHands
-from mediapipe.python.solutions import drawing_utils as mpDraw
-
+mpHands = mediapipe.solutions.hands
+mpDraw = mediapipe.solutions.drawing_utils
 hands = mpHands.Hands(
     static_image_mode = False,
     max_num_hands = 2,
