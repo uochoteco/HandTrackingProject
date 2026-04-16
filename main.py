@@ -1,9 +1,14 @@
 import cv2
 import mediapipe
+from mediapipe.python.solutions import hands as mpHands
+from mediapipe.python.solutions import drawing_utils as mpDraw
 
-mpHands = mediapipe.solutions.hands
-hands = mediapipe.Hands()
-mpDraw = mediapipe.solutions.drawing_utils
+hands = mpHands.Hands(
+    static_image_mode = False,
+    max_num_hands = 2,
+    min_detection_confidence = 0.5,
+    min_tracking_confidence = 0.5
+)
 
 capture = cv2.VideoCapture(0)
 
@@ -14,10 +19,10 @@ while True:
         break
 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    output = hands.process(img_rgb)
+    results = hands.process(img_rgb)
 
-    if output.multi_hand_landmarks:
-        for hand_lms in output.multi_hand_landmarks:
+    if results.multi_hand_landmarks:
+        for hand_lms in results.multi_hand_landmarks:
             mpDraw.draw_landmarks(img, hand_lms, mpHands.HAND_CONNECTIONS)
     
     cv2.imshow("Hand TRacking", img)
