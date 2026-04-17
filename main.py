@@ -1,34 +1,25 @@
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-BaseOptions = mp.tasks.BaseOptions
-HandLandmarker = mp.tasks.vision.HandLandmarker
-HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
-VisionRunningMode = mp.tasks.vision.RunningMode
-mpHands = mp.solutions.hands
-mpDraw = mp.solutions.drawing_utils
-hands = mpHands.Hands(static_image_mode = False, max_num_hands = 2, min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
+base_options = python.BaseOptions(model_asset_path = 'hand_landmarker.task')
+options = vision.HandLandmarkerOptions(base_options = base_options, num_hands = 2)
+detector = vision.HandLandmarker.create_from_options(options)
 
 capture = cv2.VideoCapture(0)
 
-while True:
-    works, img = capture.read()
+while capture.isOpened():
+    works, image = capture.read()
     if not works:
-        print("Camera didn't work idiot")
         break
-
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = hands.process(img_rgb)
-
-    if results.multi_hand_landmarks:
-        for hand_lms in results.multi_hand_landmarks:
-            mpDraw.draw_landmarks(img, hand_lms, mpHands.HAND_CONNECTIONS)
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    mpImage = mp.Image(image_format = mp.ImageFormat.SRGB, data = image_rgb)
+    detectorOutput = detector.detect(mpImage)
+    cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
     
-    cv2.imshow("Hand TRacking", img)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0&FF == ord('q'):
         break
 
 capture.release()
 cv2.destroyAllWindows()
-        
