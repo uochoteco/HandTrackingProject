@@ -19,6 +19,18 @@ with vision.HandLandmarker.create_from_options(options) as detector:
 
         if output.hand_landmarks:
             for hand_in_frame in output.hand_landmarks:
+                connections = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6), (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12), (9, 13), (13, 14),
+                    (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
+                
+                for connection in connections:
+                    startID = connection[0]
+                    endID = connection[1]
+                    pOne = hand_in_frame[startID]
+                    pTwo = hand_in_frame[endID]
+                    vOne = (int(pOne.x * image.shape[1]), int(pOne.y * image.shape[0]))
+                    vTwo = (int(pTwo.x * image.shape[1]), int(pTwo.y * image.shape[0]))
+                    cv2.line(image, vOne, vTwo, (255, 0, 0), 2)
+
                 for landmark in hand_in_frame:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
