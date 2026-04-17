@@ -35,7 +35,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
                     cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
-                    
+                       
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
