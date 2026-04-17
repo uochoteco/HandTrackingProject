@@ -1,13 +1,13 @@
 import cv2
-import mediapipe
-mpHands = mediapipe.solutions.hands
-mpDraw = mediapipe.solutions.drawing_utils
-hands = mpHands.Hands(
-    static_image_mode = False,
-    max_num_hands = 2,
-    min_detection_confidence = 0.5,
-    min_tracking_confidence = 0.5
-)
+import mediapipe as mp
+
+BaseOptions = mp.tasks.BaseOptions
+HandLandmarker = mp.tasks.vision.HandLandmarker
+HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
+VisionRunningMode = mp.tasks.vision.RunningMode
+mpHands = mp.solutions.hands
+mpDraw = mp.solutions.drawing_utils
+hands = mpHands.Hands(static_image_mode = False, max_num_hands = 2, min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
 
 capture = cv2.VideoCapture(0)
 
