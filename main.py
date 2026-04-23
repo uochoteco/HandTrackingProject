@@ -8,7 +8,6 @@ base_options = python.BaseOptions(model_asset_path = 'hand_landmarker.task')
 options = vision.HandLandmarkerOptions(base_options = base_options, num_hands = 2)
 
 def countFingers(hand_landmarks):
-    print("inCountFunction")
     tips = [8, 12, 16, 20]
     knuckles = [6, 10, 14, 18]
     fingersUp = 0
