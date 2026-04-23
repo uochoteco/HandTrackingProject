@@ -15,12 +15,12 @@ def countFingers(hand_landmarks):
 
     for i in range(4):
         if hand_landmarks[tips[i]].y < hand_landmarks[knuckles[i]].y:
-           fingersUP = fingersUp + 1
+           fingersUp = fingersUp + 1
 
     if abs(hand_landmarks[4].x - hand_landmarks[2].x) > 0.05:
-        fingersUP = fingersUp + 1
+        fingersUp = fingersUp + 1
 
-    return fingersUP
+    return fingersUp
 
 with vision.HandLandmarker.create_from_options(options) as detector:
 
@@ -61,18 +61,18 @@ with vision.HandLandmarker.create_from_options(options) as detector:
 
                 if fingers == 2:
                     if index == 0:
-                        print(handOneTimer)
+                        print(time.time() - handOneTimer)
                         if handOneTimer == 0:
                             handOneTimer = time.time()
                         elif time.time() - handOneTimer > 2:
                             print("hand one marked")
 
                     if index == 1:
-                        print(handOneTimer)
+                        print(time.time() - handOneTimer)
                         if handTwoTimer == 0:
                             handTwoTimer = time.time()
                         elif time.time() - handTwoTimer > 2:
-                            print("hand one marked")
+                            print("hand two marked")
                 else:
                     if index == 0:
                         handOneTimer = 0
