@@ -26,6 +26,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     capture = cv2.VideoCapture(0)
     handOneTimer = 0
     handTwoTimer = 0
+    color = [0, 255]
+    handOneAssigned = False
+    handTwoAssigned = False
     assignedHands = {}
 
     while capture.isOpened():
@@ -53,31 +56,36 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 for landmark in hand_in_frame:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
-                    cv2.circle(image, (x, y), 5, (0, 255, 0), -1)
+                    cv2.circle(image, (x, y), 5, (color[0], 0, color[1]), -1)
             
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 fingers = countFingers(hand_in_frame)
 
                 if fingers == 2:
-                    if index == 0:
-                        print(time.time() - handOneTimer)
-                        if handOneTimer == 0:
-                            handOneTimer = time.time()
-                        elif time.time() - handOneTimer > 2:
-                            print("hand one marked")
+                    if handOneTimer == 0:
+                        handOneTimer = time.time()
+                    elif time.time() - handOneTimer > 2:
+                        print("hand one marked")
+                        handOneAssigned = True
+                    print(time.time() - handOneTimer)
 
-                    if index == 1:
-                        print(time.time() - handOneTimer)
-                        if handTwoTimer == 0:
-                            handTwoTimer = time.time()
-                        elif time.time() - handTwoTimer > 2:
-                            print("hand two marked")
+                if fingers == 1:
+                    if handTwoTimer == 0:
+                        handTwoTimer = time.time()
+                    elif time.time() - handTwoTimer >= 2:
+                        handTwoAssigned = True
+                        print("hand two marked")
+                    print(time.time() - handTwoTimer)
                 else:
+                    if handOneTimer >= 2:
+                        handOneTimer = time.time() - 2
+                    if handTwoTimer >= 2:
+                        handTwoTimer = time.time() - 2
                     if index == 0:
                         handOneTimer = 0
                     if index == 1:
                         handTwoTimer = 0
-                        
+                color = [(255 - 255 * ((time.time() - handOneTimer)/2)), 255 * ((time.time() - handOneTimer)/2)]
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
