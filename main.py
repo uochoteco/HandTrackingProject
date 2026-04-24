@@ -41,10 +41,13 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 connections = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6), (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12), (9, 13), (13, 14),
                     (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
             
+            presentHands = [h[0].category_name for h in output.handedness]
+
             for index, hand_in_frame in enumerate(output.hand_landmarks):
+                label = presentHands[index]
                 fingers = countFingers(hand_in_frame)
 
-                if index == 0:
+                if label == "Left":
                     if fingers == 1 and not handsAssigned[0]:
                         if timers[0] == 0:
                             timers[0] = time.time()
@@ -54,8 +57,14 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         print(time.time() - timers[0])
                     elif not handsAssigned[0]:
                         timers[0] = 0
-
-                if index == 1:
+                    progress = 0
+                    if handsAssigned[0]:
+                        progress = 1
+                    elif timers[0] > 0:
+                        progress = min((time.time() - timers[0]) / 2, 1.0)
+                    color = ((int)(255 * (1 - progress)),0 , (int)(255 * (progress)))
+                    
+                if label == "Right":
                     if fingers == 2 and not handsAssigned[1]:
                         if timers[1] == 0:
                             timers[1] = time.time()
@@ -65,18 +74,13 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         print(time.time() - timers[1])
                     elif not handsAssigned[1]:
                         timers[1] = 0
-
-                progress = 0
-                if timers[index] > 0 and not handsAssigned[index]:
-                    progress = min((time.time() - timers[index]) / 2, 1.0)
-                elif handsAssigned[index]:
-                    progress = 1.0
-
-                if index == 0:
-                    color = ((int)(255 * (1 - progress)), 0, (int)(255 * (progress)))
-                else:
+                    progress = 0
+                    if handsAssigned[1]:
+                        progress = 1
+                    elif timers[1] > 0:
+                        progress = min((time.time() - timers[1]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
-                
+
                 for connection in connections:
                     startID = connection[0]
                     endID = connection[1]
