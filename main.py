@@ -40,20 +40,6 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             for hand_in_frame in output.hand_landmarks:
                 connections = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6), (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12), (9, 13), (13, 14),
                     (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
-                
-                for connection in connections:
-                    startID = connection[0]
-                    endID = connection[1]
-                    pOne = hand_in_frame[startID]
-                    pTwo = hand_in_frame[endID]
-                    vOne = (int(pOne.x * image.shape[1]), int(pOne.y * image.shape[0]))
-                    vTwo = (int(pTwo.x * image.shape[1]), int(pTwo.y * image.shape[0]))
-                    cv2.line(image, vOne, vTwo, (255, 255, 0), 2)
-                
-                for landmark in hand_in_frame:
-                    x = int(landmark.x * image.shape[1])
-                    y = int(landmark.y * image.shape[0])
-                    cv2.circle(image, (x, y), 5, color, -1)
             
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 fingers = countFingers(hand_in_frame)
@@ -70,7 +56,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         timers[0] = 0
 
                 if index == 1:
-                    if fingers == 1 and not handsAssigned[1]:
+                    if fingers == 2 and not handsAssigned[1]:
                         if timers[1] == 0:
                             timers[1] = time.time()
                         elif time.time() - timers[1] > 2:
@@ -87,9 +73,23 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     progress = 1.0
 
                 if index == 0:
-                    color = (0, (int)(255 * (1 - progress)), (int)(255 * (progress)))
+                    color = ((int)(255 * (1 - progress)), 0, (int)(255 * (progress)))
                 else:
-                    color = ((int)(255 * (progress)), (int)(255 * (1 - progress)), 0)
+                    color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
+                
+                for connection in connections:
+                    startID = connection[0]
+                    endID = connection[1]
+                    pOne = hand_in_frame[startID]
+                    pTwo = hand_in_frame[endID]
+                    vOne = (int(pOne.x * image.shape[1]), int(pOne.y * image.shape[0]))
+                    vTwo = (int(pTwo.x * image.shape[1]), int(pTwo.y * image.shape[0]))
+                    cv2.line(image, vOne, vTwo, (255, 255, 0), 2)
+                
+                for landmark in hand_in_frame:
+                    x = int(landmark.x * image.shape[1])
+                    y = int(landmark.y * image.shape[0])
+                    cv2.circle(image, (x, y), 5, color, -1)
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
