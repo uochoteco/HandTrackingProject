@@ -24,12 +24,9 @@ def countFingers(hand_landmarks):
 with vision.HandLandmarker.create_from_options(options) as detector:
 
     capture = cv2.VideoCapture(0)
-    handOneTimer = 0
-    handTwoTimer = 0
-    color = [0, 255]
-    handOneAssigned = False
-    handTwoAssigned = False
-    assignedHands = {}
+    timers = [0.0, 0.0]
+    handsAssigned =[False, False]
+    color = [255, 0, 0]
 
     while capture.isOpened():
         works, image = capture.read()
@@ -51,41 +48,48 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     pTwo = hand_in_frame[endID]
                     vOne = (int(pOne.x * image.shape[1]), int(pOne.y * image.shape[0]))
                     vTwo = (int(pTwo.x * image.shape[1]), int(pTwo.y * image.shape[0]))
-                    cv2.line(image, vOne, vTwo, (255, 0, 0), 2)
+                    cv2.line(image, vOne, vTwo, (255, 255, 0), 2)
                 
                 for landmark in hand_in_frame:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
-                    cv2.circle(image, (x, y), 5, (color[0], 0, color[1]), -1)
+                    cv2.circle(image, (x, y), 5, color, -1)
             
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 fingers = countFingers(hand_in_frame)
 
-                if fingers == 2:
-                    if handOneTimer == 0:
-                        handOneTimer = time.time()
-                    elif time.time() - handOneTimer > 2:
-                        print("hand one marked")
-                        handOneAssigned = True
-                    print(time.time() - handOneTimer)
+                if index == 0:
+                    if fingers == 1 and not handsAssigned[0]:
+                        if timers[0] == 0:
+                            timers[0] = time.time()
+                        elif time.time() - timers[0] > 2:
+                            print("hand one marked")
+                            handsAssigned[0] = True
+                        print(time.time() - timers[0])
+                    elif not handsAssigned[0]:
+                        timers[0] = 0
 
-                if fingers == 1:
-                    if handTwoTimer == 0:
-                        handTwoTimer = time.time()
-                    elif time.time() - handTwoTimer >= 2:
-                        handTwoAssigned = True
-                        print("hand two marked")
-                    print(time.time() - handTwoTimer)
+                if index == 1:
+                    if fingers == 1 and not handsAssigned[1]:
+                        if timers[1] == 0:
+                            timers[1] = time.time()
+                        elif time.time() - timers[1] > 2:
+                            print("hand two marked")
+                            handsAssigned[1] = True
+                        print(time.time() - timers[1])
+                    elif not handsAssigned[1]:
+                        timers[1] = 0
+
+                progress = 0
+                if timers[index] > 0 and not handsAssigned[index]:
+                    progress = min((time.time() - timers[index]) / 2, 1.0)
+                elif handsAssigned[index]:
+                    progress = 1.0
+
+                if index == 0:
+                    color = (0, (int)(255 * (1 - progress)), (int)(255 * (progress)))
                 else:
-                    if handOneTimer >= 2:
-                        handOneTimer = time.time() - 2
-                    if handTwoTimer >= 2:
-                        handTwoTimer = time.time() - 2
-                    if index == 0:
-                        handOneTimer = 0
-                    if index == 1:
-                        handTwoTimer = 0
-                color = [(255 - 255 * ((time.time() - handOneTimer)/2)), 255 * ((time.time() - handOneTimer)/2)]
+                    color = ((int)(255 * (progress)), (int)(255 * (1 - progress)), 0)
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
