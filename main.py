@@ -27,6 +27,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     timers = [0.0, 0.0]
     handsAssigned =[False, False]
     color = [255, 0, 0]
+    drawingPoints = []
+    timeIndexDown = 0
+    circleCenter = None
+    circleRadius = 0
 
     while capture.isOpened():
         works, image = capture.read()
@@ -42,10 +46,6 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
             
             presentHands = [h[0].category_name for h in output.handedness]
-            drawingPoints = []
-            timeIndexDown = 0
-            circleCenter = None
-            circleRadius = 0
 
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 label = presentHands[index]
