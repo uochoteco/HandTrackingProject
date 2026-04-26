@@ -42,6 +42,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
             
             presentHands = [h[0].category_name for h in output.handedness]
+            drawingPoints = []
+            timeIndexDown = 0
+            circleCenter = None
+            circleRadius = 0
 
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 label = presentHands[index]
@@ -81,6 +85,21 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         progress = min((time.time() - timers[1]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
 
+                if label == "Left" and handsAssigned[0]:
+                    print("here")
+                    indexTip = hand_in_frame[8]
+
+                    if fingers == 1:
+                        ("doing stuff")
+                        xPix = int(indexTip.x * image.shape[1])
+                        yPix = int(indexTip.y * image.shape[0])
+                        drawingPoints.append((xPix, yPix))
+                        timeIndexDown = time.time()
+
+                    elif time.time() - timeIndexDown > 0.5:
+                        print("not doing shit")
+                        drawingPoints = []
+
                 for connection in connections:
                     startID = connection[0]
                     endID = connection[1]
@@ -94,6 +113,11 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
                     cv2.circle(image, (x, y), 5, color, -1)
+            
+            if len(drawingPoints) > 2:
+                for i in range(1, len(drawingPoints)):
+                    cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (255, 255, 255), 2)
+
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
