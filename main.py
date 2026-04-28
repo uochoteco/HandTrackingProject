@@ -43,7 +43,7 @@ def checkCircle(points):
     height = max(yCord) - min(yCord)
 
     ratio = min(width, height)/max(width, height)
-    if ratio < 0.7:
+    if ratio < 0.85:
         return False
     else:
         return True
