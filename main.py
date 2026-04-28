@@ -22,7 +22,7 @@ def countFingers(hand_landmarks):
 
     return fingersUp
 
-def checkCircle(points):
+def checkRectangle(points):
     if len(points) < 20:
         return False
 
@@ -44,6 +44,32 @@ def checkCircle(points):
 
     ratio = min(width, height)/max(width, height)
     if ratio < 0.85:
+        return False
+    else:
+        return True
+    
+def checkCircle(points):
+    if len(points) < 20:
+        return False
+
+    start = points[0]
+    end = points[-1]
+    distance = math.sqrt((start[0] - end[0])**2 + (start[1] - end[1])**2)
+    
+    if distance > 50:
+        return False
+    
+    perimeter = 0
+    for i in range (1, len(points)):
+        perimeter = perimeter + math.sqrt((points[i][0] - points[i - 1][0])**2 + (points[i][1] - points[i - 1][1])**2)
+
+    xCord = [i[0] for i in points]
+    yCord = [i[1] for i in points]
+    width = max(xCord) - min(xCord)
+    height = max(yCord) - min(yCord)
+
+    ratio = min(width, height)/max(width, height)
+    if ratio > 0.6:
         return False
     else:
         return True
@@ -113,18 +139,15 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
 
                 if label == "Left" and handsAssigned[0] and handsAssigned[1]:
-                    print("here")
                     indexTip = hand_in_frame[8]
 
                     if fingers == 1:
-                        ("doing stuff")
                         xPix = int(indexTip.x * image.shape[1])
                         yPix = int(indexTip.y * image.shape[0])
                         drawingPoints.append((xPix, yPix))
                         timeIndexDown = time.time()
 
                     elif time.time() - timeIndexDown > 0.5:
-                        print("not doing shit")
                         drawingPoints = []
 
                 for connection in connections:
