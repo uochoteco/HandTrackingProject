@@ -1,3 +1,4 @@
+import math
 import cv2
 import time
 import mediapipe as mp
@@ -20,6 +21,32 @@ def countFingers(hand_landmarks):
         fingersUp = fingersUp + 1
 
     return fingersUp
+
+def checkCircle(points):
+    if len(points) < 20:
+        return False
+
+    start = points[0]
+    end = points[-1]
+    distance = math.sqrt((start[0] - end[0])**2 + (start[1] - end[1])**2)
+    
+    if distance > 50:
+        return False
+    
+    perimeter = 0
+    for i in range (1, len(points)):
+        perimeter = perimeter + math.sqrt((points[i][0] - points[i - 1][0])**2 + (points[i][1] - points[i - 1][1])**2)
+
+    xCord = [i[0] for i in points]
+    yCord = [i[1] for i in points]
+    width = max(xCord) - min(xCord)
+    height = max(yCord) - min(yCord)
+
+    ratio = min(width, height)/max(width, height)
+    if ratio < 0.7:
+        return False
+    else:
+        return True
 
 with vision.HandLandmarker.create_from_options(options) as detector:
 
@@ -85,7 +112,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         progress = min((time.time() - timers[1]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
 
-                if label == "Left" and handsAssigned[0]:
+                if label == "Left" and handsAssigned[0] and handsAssigned[1]:
                     print("here")
                     indexTip = hand_in_frame[8]
 
@@ -115,8 +142,15 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     cv2.circle(image, (x, y), 5, color, -1)
             
             if len(drawingPoints) > 2:
+                drawingColor = [255, 255, 255]
+
+            if checkCircle(drawingPoints):
+                print("Circle Found!")
+                drawingColor[255, 0, 0]
+
+            if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
-                    cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (255, 255, 255), 2)
+                        cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (drawingColor[0], drawingColor[1], drawingColor[2]), 2)
 
         cv2.imshow('Hand Tracking - Tasks API', cv2.flip(image, 1))
         if cv2.waitKey(1) & 0xFF == ord('q'):
