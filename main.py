@@ -142,11 +142,11 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     cv2.circle(image, (x, y), 5, color, -1)
             
             if len(drawingPoints) > 2:
-                drawingColor = [255, 255, 255]
+                drawingColor = (255, 255, 255)
 
             if checkCircle(drawingPoints):
                 print("Circle Found!")
-                drawingColor[255, 0, 0]
+                drawingColor = (0, 255, 0)
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
