@@ -58,6 +58,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     timeIndexDown = 0
     circleCenter = None
     circleRadius = 0
+    shapeMaking = False
+    sOrigin = None
+    sDiam = 0
+    sFinal = False
 
     while capture.isOpened():
         works, image = capture.read()
@@ -141,10 +145,23 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             if len(drawingPoints) > 2:
                 drawingColor = (255, 255, 255)
 
-            if checkCircle(drawingPoints):
+            if checkCircle(drawingPoints) and not shapeMaking and handsAssigned[1]:
                 print("Circle Found!")
                 drawingColor = (0, 255, 0)
-
+                for hIndex, hLabel in enumerate(presentHands):
+                    if hLabel == "Right":
+                        middle = output.hand_landmarks[hIndex][9]
+                        sOrigin = (middle.x, middle.y, middle.z)
+                        shapeMaking = True
+                        print("origin found")
+                        
+            if shapeMaking and not sFinal:
+                for hIndex, hLabel in enumerate(presentHands):
+                    if hLabel == "Right":
+                        middle = output.hand_landmarks[hIndex][9]
+                        diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2, (middle.z - sOrigin[2])**2)
+                        sDiam = (int)(diameter  * image.shape[1])
+                    
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
                         cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (drawingColor[0], drawingColor[1], drawingColor[2]), 2)
