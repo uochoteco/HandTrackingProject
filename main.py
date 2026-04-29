@@ -62,8 +62,6 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     color = [255, 0, 0]
     drawingPoints = []
     timeIndexDown = 0
-    circleCenter = None
-    circleRadius = 0
     shapeMaking = False
     sOrigin = None
     sDiam = 0
