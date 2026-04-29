@@ -43,7 +43,7 @@ def checkCircle(points):
     height = max(yCord) - min(yCord)
 
     ratio = min(width, height)/max(width, height)
-    if ratio > 0.8:
+    if ratio < 0.8:
         return False
     else:
         return True
@@ -152,7 +152,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             if checkCircle(drawingPoints):
                 print("Circle Found!")
                 drawingColor = (0, 255, 0)
-                if shapeMaking:
+                if not shapeMaking:
                     for hIndex, hLabel in enumerate(presentHands):
                         if hLabel == "Right":
                             middle = output.hand_landmarks[hIndex][9]
@@ -164,7 +164,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 for hIndex, hLabel in enumerate(presentHands):
                     if hLabel == "Right":
                         middle = output.hand_landmarks[hIndex][9]
-                        diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2, (middle.z - sOrigin[2])**2)
+                        diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2 + (middle.z - sOrigin[2])**2)
                         sDiam = (int)(diameter  * image.shape[1])
                         if isFist(output.hand_landmarks[hIndex]):
                             sFinal = True
@@ -174,9 +174,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 for hIndex, hLabel in enumerate(presentHands):
                     if hLabel == "Right":
                         middle = output.hand_landmarks[hIndex][9]
-                        centerPx = ((sOrigin[0] + middle.x)/2)
-                        centerPy = ((sOrigin[1] + middle.y)/2)
-                        sRadius = sDiam/2
+                        centerPx = int((sOrigin[0] + middle.x)/2)
+                        centerPy = int((sOrigin[1] + middle.y)/2)
+                        sRadius = (int)(sDiam/2)
                         cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), 2)
                         cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius // 3) ,0 ,0 ,360, (255, 0, 255), 1)
 
