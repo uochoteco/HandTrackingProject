@@ -47,6 +47,12 @@ def checkCircle(points):
         return False
     else:
         return True
+    
+def isFist(hand_landmarks):
+    if ((hand_landmarks[8].y > hand_landmarks[6].y) and (hand_landmarks[12].y > hand_landmarks[10].y) and (hand_landmarks[16].y > hand_landmarks[14].y) and (hand_landmarks[20].y > hand_landmarks[18].y)):
+        return True
+    else:
+        return False
 
 with vision.HandLandmarker.create_from_options(options) as detector:
 
@@ -154,14 +160,27 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         sOrigin = (middle.x, middle.y, middle.z)
                         shapeMaking = True
                         print("origin found")
-                        
+
             if shapeMaking and not sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
                     if hLabel == "Right":
                         middle = output.hand_landmarks[hIndex][9]
                         diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2, (middle.z - sOrigin[2])**2)
                         sDiam = (int)(diameter  * image.shape[1])
+                        if isFist(output.hand_landmarks[hIndex]):
+                            sFinal = True
+                            shapeMaking = False
                     
+            if sFinal:
+                for hIndex, hLabel in enumerate(presentHands):
+                    if hLabel == "Right":
+                        middle = output.hand_landmarks[hIndex][9]
+                        centerPx = ((sOrigin[0] + middle.x)/2)
+                        centerPy = ((sOrigin[1] + middle.y)/2)
+                        sRadius = sDiam/2
+                        cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), 2)
+                        cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius // 3) ,0 ,0 ,360, (255, 0, 255), 1)
+
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
                         cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (drawingColor[0], drawingColor[1], drawingColor[2]), 2)
