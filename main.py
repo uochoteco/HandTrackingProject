@@ -43,7 +43,7 @@ def checkCircle(points):
     height = max(yCord) - min(yCord)
 
     ratio = min(width, height)/max(width, height)
-    if ratio > 0.6:
+    if ratio > 0.8:
         return False
     else:
         return True
@@ -151,15 +151,16 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             if len(drawingPoints) > 2:
                 drawingColor = (255, 255, 255)
 
-            if checkCircle(drawingPoints) and not shapeMaking and handsAssigned[1]:
+            if checkCircle(drawingPoints):
                 print("Circle Found!")
                 drawingColor = (0, 255, 0)
-                for hIndex, hLabel in enumerate(presentHands):
-                    if hLabel == "Right":
-                        middle = output.hand_landmarks[hIndex][9]
-                        sOrigin = (middle.x, middle.y, middle.z)
-                        shapeMaking = True
-                        print("origin found")
+                if shapeMaking:
+                    for hIndex, hLabel in enumerate(presentHands):
+                        if hLabel == "Right":
+                            middle = output.hand_landmarks[hIndex][9]
+                            sOrigin = (middle.x, middle.y, middle.z)
+                            shapeMaking = True
+                            print("origin found")
 
             if shapeMaking and not sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
