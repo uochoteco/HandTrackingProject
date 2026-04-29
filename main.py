@@ -22,32 +22,6 @@ def countFingers(hand_landmarks):
 
     return fingersUp
 
-def checkRectangle(points):
-    if len(points) < 20:
-        return False
-
-    start = points[0]
-    end = points[-1]
-    distance = math.sqrt((start[0] - end[0])**2 + (start[1] - end[1])**2)
-    
-    if distance > 50:
-        return False
-    
-    perimeter = 0
-    for i in range (1, len(points)):
-        perimeter = perimeter + math.sqrt((points[i][0] - points[i - 1][0])**2 + (points[i][1] - points[i - 1][1])**2)
-
-    xCord = [i[0] for i in points]
-    yCord = [i[1] for i in points]
-    width = max(xCord) - min(xCord)
-    height = max(yCord) - min(yCord)
-
-    ratio = min(width, height)/max(width, height)
-    if ratio < 0.85:
-        return False
-    else:
-        return True
-    
 def checkCircle(points):
     if len(points) < 20:
         return False
