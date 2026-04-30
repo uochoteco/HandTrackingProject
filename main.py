@@ -166,6 +166,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         middle = output.hand_landmarks[hIndex][9]
                         diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2 + (middle.z - sOrigin[2])**2)
                         sDiam = (int)(diameter  * image.shape[1])
+                        centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
+                        centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
+                        sRadius = (int)(sDiam/2)
+                        cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), 2)
                         if isFist(output.hand_landmarks[hIndex]):
                             sFinal = True
                             shapeMaking = False
