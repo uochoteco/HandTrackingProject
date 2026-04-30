@@ -66,6 +66,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     sOrigin = None
     sDiam = 0
     sFinal = False
+    middle = None
 
     while capture.isOpened():
         works, image = capture.read()
@@ -172,12 +173,11 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             if sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
                     if hLabel == "Right":
-                        middle = output.hand_landmarks[hIndex][9]
                         centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
                         centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
                         sRadius = (int)(sDiam/2)
                         cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), 2)
-                        cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius // 3) ,0 ,0 ,360, (255, 0, 255), 1)
+                        
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
