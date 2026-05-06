@@ -54,6 +54,10 @@ def isFist(hand_landmarks):
     else:
         return False
 
+def isAngle(points):
+    if 1==1:
+        return True
+    
 with vision.HandLandmarker.create_from_options(options) as detector:
 
     capture = cv2.VideoCapture(0)
@@ -152,7 +156,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
 
             if checkCircle(drawingPoints):
                 drawingColor = (0, 255, 0)
-                if not shapeMaking:
+                if not shapeMaking and not sFinal:
                     for hIndex, hLabel in enumerate(presentHands):
                         if hLabel == "Right":
                             middle = output.hand_landmarks[hIndex][9]
