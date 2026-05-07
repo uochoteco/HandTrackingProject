@@ -71,6 +71,8 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     sDiam = 0
     sFinal = False
     middle = None
+    hOneS = None
+    hTwoS = None
 
     while capture.isOpened():
         works, image = capture.read()
@@ -91,13 +93,14 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 label = presentHands[index]
                 fingers = countFingers(hand_in_frame)
 
-                if label == "Left":
+                if label == hOneS or hOneS == None:
                     if fingers == 1 and not handsAssigned[0]:
                         if timers[0] == 0:
                             timers[0] = time.time()
                         elif time.time() - timers[0] > 2:
                             print("hand one marked")
                             handsAssigned[0] = True
+                            hOneS = label
                         print(time.time() - timers[0])
                     elif not handsAssigned[0]:
                         timers[0] = 0
@@ -108,13 +111,14 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         progress = min((time.time() - timers[0]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)),0 , (int)(255 * (progress)))
                     
-                if label == "Right":
+                if not hOneS == None and not label == hOneS:
                     if fingers == 2 and not handsAssigned[1]:
                         if timers[1] == 0:
                             timers[1] = time.time()
                         elif time.time() - timers[1] > 2:
                             print("hand two marked")
                             handsAssigned[1] = True
+                            hTwoS = label
                         print(time.time() - timers[1])
                     elif not handsAssigned[1]:
                         timers[1] = 0
@@ -125,7 +129,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         progress = min((time.time() - timers[1]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
 
-                if label == "Left" and handsAssigned[0] and handsAssigned[1]:
+                if label == hOneS and handsAssigned[0] and handsAssigned[1]:
                     indexTip = hand_in_frame[8]
 
                     if fingers == 1:
@@ -158,7 +162,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 drawingColor = (0, 255, 0)
                 if not shapeMaking and not sFinal:
                     for hIndex, hLabel in enumerate(presentHands):
-                        if hLabel == "Right":
+                        if hLabel == hTwoS:
                             middle = output.hand_landmarks[hIndex][9]
                             sOrigin = (middle.x, middle.y, middle.z)
                             shapeMaking = True
@@ -166,7 +170,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
 
             if shapeMaking and not sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
-                    if hLabel == "Right":
+                    if hLabel == hTwoS:
                         middle = output.hand_landmarks[hIndex][9]
                         diameter = math.sqrt((middle.x - sOrigin[0])**2 + (middle.y - sOrigin[1])**2 + (middle.z - sOrigin[2])**2)
                         sDiam = (int)(diameter  * image.shape[1])
@@ -180,7 +184,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     
             if sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
-                    if hLabel == "Right":
+                    if hLabel == hTwoS:
                         centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
                         centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
                         sRadius = (int)(sDiam/2)
