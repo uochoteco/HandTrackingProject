@@ -92,8 +92,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             for index, hand_in_frame in enumerate(output.hand_landmarks):
                 label = presentHands[index]
                 fingers = countFingers(hand_in_frame)
-
-                if label == hOneS or hOneS == None:
+                isHandOne = (label == hOneS)
+                isHandTwo = (label == hTwoS)
+                #Hand One detection and assignment code
+                if isHandOne == label or(label != hTwoS and hOneS is None):
                     if fingers == 1 and not handsAssigned[0]:
                         if timers[0] == 0:
                             timers[0] = time.time()
@@ -110,8 +112,8 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     elif timers[0] > 0:
                         progress = min((time.time() - timers[0]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)),0 , (int)(255 * (progress)))
-                    
-                if not hOneS == None and not label == hOneS:
+                #Hand Two detection and assignment code
+                if isHandTwo == label or(label != hOneS and hTwoS is None):
                     if fingers == 2 and not handsAssigned[1]:
                         if timers[1] == 0:
                             timers[1] = time.time()
@@ -128,7 +130,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     elif timers[1] > 0:
                         progress = min((time.time() - timers[1]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)), (int)(255 * (progress)), 0)
-
+                #Code for drawing with hand one when one finger is up
                 if label == hOneS and handsAssigned[0] and handsAssigned[1]:
                     indexTip = hand_in_frame[8]
 
@@ -140,7 +142,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
 
                     elif time.time() - timeIndexDown > 0.5:
                         drawingPoints = []
-
+                #Drawing for the skeleton of the hands
                 for connection in connections:
                     startID = connection[0]
                     endID = connection[1]
@@ -157,7 +159,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             
             if len(drawingPoints) > 2:
                 drawingColor = (255, 255, 255)
-
+            #Circle drawn detection code white lines
             if checkCircle(drawingPoints):
                 drawingColor = (0, 255, 0)
                 if not shapeMaking and not sFinal:
@@ -167,7 +169,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             sOrigin = (middle.x, middle.y, middle.z)
                             shapeMaking = True
                             print("origin found")
-
+            #Circle making code
             if shapeMaking and not sFinal:
                 for hIndex, hLabel in enumerate(presentHands):
                     if hLabel == hTwoS:
