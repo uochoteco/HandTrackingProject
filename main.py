@@ -54,9 +54,23 @@ def isFist(hand_landmarks):
     else:
         return False
 
-def isAngle(points):
-    if 1==1:
+def isLine(points):
+    if len(points) < 30:
+        return False 
+    start = points[0]
+    end = points[-1]
+    slope = (start[1] - end[1])/(start[0] - end[0])
+    count = 0
+    for i in range (1, len(points)):
+        if abs(points[1][1] - start[1] + (abs(points[i][0] - start[0]) * slope) < 50):
+            count = count + 1
+    
+    if count/len(points) > 0.8:
         return True
+    else:
+        return False
+
+
     
 with vision.HandLandmarker.create_from_options(options) as detector:
 
@@ -192,6 +206,10 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         sRadius = (int)(sDiam/2)
                         cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), -1)
                         cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
+            #check if hand one drew a line
+            if isLine(drawingPoints):
+                print("line found")
+                
                         
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
