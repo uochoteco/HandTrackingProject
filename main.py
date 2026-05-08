@@ -95,7 +95,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 isHandOne = (label == hOneS)
                 isHandTwo = (label == hTwoS)
                 #Hand One detection and assignment code
-                if isHandOne == label or(label != hTwoS and hOneS is None):
+                if isHandOne or(label != hTwoS and hOneS is None):
                     if fingers == 1 and not handsAssigned[0]:
                         if timers[0] == 0:
                             timers[0] = time.time()
@@ -113,7 +113,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         progress = min((time.time() - timers[0]) / 2, 1.0)
                     color = ((int)(255 * (1 - progress)),0 , (int)(255 * (progress)))
                 #Hand Two detection and assignment code
-                if isHandTwo == label or(label != hOneS and hTwoS is None):
+                elif isHandTwo or(label != hOneS and hTwoS is None):
                     if fingers == 2 and not handsAssigned[1]:
                         if timers[1] == 0:
                             timers[1] = time.time()
@@ -151,7 +151,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     vOne = (int(pOne.x * image.shape[1]), int(pOne.y * image.shape[0]))
                     vTwo = (int(pTwo.x * image.shape[1]), int(pTwo.y * image.shape[0]))
                     cv2.line(image, vOne, vTwo, (255, 255, 0), 2)
-                
+
                 for landmark in hand_in_frame:
                     x = int(landmark.x * image.shape[1])
                     y = int(landmark.y * image.shape[0])
@@ -191,6 +191,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
                         sRadius = (int)(sDiam/2)
                         cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), -1)
+                        cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
                         
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
