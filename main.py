@@ -21,7 +21,7 @@ def countFingers(hand_landmarks):
         fingersUp = fingersUp + 1
 
     return fingersUp
-
+#This checks in someone made a circle
 def checkCircle(points):
     if len(points) < 20:
         return False
@@ -47,13 +47,13 @@ def checkCircle(points):
         return False
     else:
         return True
-    
+#method to check for fist gesture 
 def isFist(hand_landmarks):
     if ((hand_landmarks[8].y > hand_landmarks[6].y) and (hand_landmarks[12].y > hand_landmarks[10].y) and (hand_landmarks[16].y > hand_landmarks[14].y) and (hand_landmarks[20].y > hand_landmarks[18].y)):
         return True
     else:
         return False
-
+#method to check for a line
 def isLine(points):
     if len(points) < 30:
         return False 
@@ -209,6 +209,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
             #check if hand one drew a line
             if isLine(drawingPoints):
                 print("line found")
+                
                 
                         
             if len(drawingPoints) > 2:
