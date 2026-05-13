@@ -1,6 +1,7 @@
 import math
 import cv2
 import time
+import random
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -59,13 +60,15 @@ def isLine(points):
         return False 
     start = points[0]
     end = points[-1]
-    slope = (start[1] - end[1])/(start[0] - end[0])
+    denominator = (start[0] - end[0])
+    if denominator == 0: denominator = 0.001
+    slope = (start[1] - end[1])/(denominator)
     count = 0
     for i in range (1, len(points)):
-        if abs(points[1][1] - start[1] + (abs(points[i][0] - start[0]) * slope) < 50):
+        if abs(points[i][1] - start[1] + ((points[i][0] - start[0]) * slope) < 50):
             count = count + 1
     
-    if count/len(points) > 0.8:
+    if count/len(points) > 0.75:
         return True
     else:
         return False
@@ -87,7 +90,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     middle = None
     hOneS = None
     hTwoS = None
-
+    pieSlices = []
     while capture.isOpened():
         works, image = capture.read()
         if not works:
@@ -199,19 +202,25 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             shapeMaking = False
                     
             if sFinal:
-                for hIndex, hLabel in enumerate(presentHands):
-                    if hLabel == hTwoS:
-                        centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
-                        centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
-                        sRadius = (int)(sDiam/2)
-                        cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), -1)
-                        cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
+                centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
+                centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
+                sRadius = (int)(sDiam/2)
+                cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), -1)
+                for idx, sliceAngle in enumerate(pieSlices):
+                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, -90, sliceAngle, (random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)), -1)
+                cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
             #check if hand one drew a line
-            if isLine(drawingPoints):
-                print("line found")
-                
-                
-                        
+            if isLine(drawingPoints) and sFinal:
+                print("here")
+                end = drawingPoints[-1]
+                start = drawingPoints[0]
+                dX = end[0] - start[0]
+                dY = end[1] - start[1]
+                sliceAngle = math.degrees(math.atan2(dY, dX))
+                if sliceAngle not in pieSlices:
+                    pieSlices.append(sliceAngle)
+                    drawingPoints = []
+
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
                         cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (drawingColor[0], drawingColor[1], drawingColor[2]), 2)
