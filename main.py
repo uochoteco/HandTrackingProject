@@ -56,7 +56,7 @@ def isFist(hand_landmarks):
         return False
 #method to check for a line
 def isLine(points):
-    if len(points) < 30:
+    if len(points) < 15:
         return False 
     start = points[0]
     end = points[-1]
@@ -67,8 +67,8 @@ def isLine(points):
     for i in range (1, len(points)):
         if abs(points[i][1] - start[1] + ((points[i][0] - start[0]) * slope) < 50):
             count = count + 1
-    
-    if count/len(points) > 0.75:
+
+    if count/len(points) > 0.7:
         return True
     else:
         return False
