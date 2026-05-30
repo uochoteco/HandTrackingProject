@@ -56,28 +56,30 @@ def isFist(hand_landmarks):
         return False
 #method to check for a line
 def isLine(points):
-    if len(points) < 15:
+    if len(points) < 20:
         return False 
     start = points[0]
     end = points[-1]
-    denominator = (start[0] - end[0])
-    if denominator == 0: denominator = 0.001
-    slope = (start[1] - end[1])/(denominator)
+    lDis = math.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)
+    if lDis < 45:
+        return False
     count = 0
-    for i in range (1, len(points)):
-        if abs(points[i][1] - start[1] + ((points[i][0] - start[0]) * slope) < 50):
-            count = count + 1
-
-    if count/len(points) > 0.7:
+    for p in points:
+        num = abs((end[1] - start[1])*p[0] - (end[0] - start[0])*p[1] + end[0] * start[1] - end[1] * start[0])
+        mError = num/lDis
+        count += mError
+    
+    if count/len(points) < 15:
         return True
     else:
         return False
-
 
     
 with vision.HandLandmarker.create_from_options(options) as detector:
 
     capture = cv2.VideoCapture(0)
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     timers = [0.0, 0.0]
     handsAssigned =[False, False]
     color = [255, 0, 0]
@@ -91,6 +93,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     hOneS = None
     hTwoS = None
     pieSlices = []
+    sliceColors = []
     while capture.isOpened():
         works, image = capture.read()
         if not works:
@@ -205,21 +208,31 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
                 centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
                 sRadius = (int)(sDiam/2)
-                cv2.circle(image, (centerPx, centerPy), sRadius, (255, 0, 255), -1)
-                for idx, sliceAngle in enumerate(pieSlices):
-                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, -90, sliceAngle, (random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)), -1)
+                cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
+                combined = sorted(zip(pieSlices, sliceColors))
+                sAngle = -90
+                for angle, curCol in combined:
+                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, sAngle, angle, curCol, -1)
+                    sAngle = angle
                 cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
             #check if hand one drew a line
             if isLine(drawingPoints) and sFinal:
                 print("here")
                 end = drawingPoints[-1]
                 start = drawingPoints[0]
-                dX = end[0] - start[0]
-                dY = end[1] - start[1]
-                sliceAngle = math.degrees(math.atan2(dY, dX))
-                if sliceAngle not in pieSlices:
-                    pieSlices.append(sliceAngle)
-                    drawingPoints = []
+                centerDist = math.sqrt((end[0] - centerPx)**2 + (end[1] - centerPy))
+                if centerDist < (sRadius * 1.5):
+                    dX = start[0] - centerPx
+                    dY = start[1] - centerPy
+                    sliceAngle = math.degrees(math.atan2(dY, dX))
+                    if sliceAngle < 0:
+                        sliceAngle += 360
+                    if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
+                        pieSlices.append(sliceAngle)
+                        newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
+                        sliceColors.append(newColor)
+                        drawingPoints = []
+                        print(f"{int(sliceAngle)}")
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
