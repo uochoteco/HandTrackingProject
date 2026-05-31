@@ -227,12 +227,16 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     sliceAngle = math.degrees(math.atan2(dY, dX))
                     if sliceAngle < 0:
                         sliceAngle += 360
-                    if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
-                        pieSlices.append(sliceAngle)
-                        newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
-                        sliceColors.append(newColor)
-                        drawingPoints = []
-                        print(f"{int(sliceAngle)}")
+
+                    shiftAngle = (sliceAngle +90) % 360
+                    lastAngle = max(pieSlices) if pieSlices else 0
+                    if shiftAngle > lastAngle:
+                        if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
+                            pieSlices.append(sliceAngle)
+                            newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
+                            sliceColors.append(newColor)
+                            drawingPoints = []
+                            print(f"{int(sliceAngle)}")
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
