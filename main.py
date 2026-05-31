@@ -228,7 +228,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     if sliceAngle < 0:
                         sliceAngle += 360
 
-                    shiftAngle = (sliceAngle +90) % 360
+                    shiftAngle = (sliceAngle + 90) % 360
                     lastAngle = max(pieSlices) if pieSlices else 0
                     if shiftAngle > lastAngle:
                         if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
