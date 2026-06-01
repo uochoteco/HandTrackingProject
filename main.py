@@ -212,27 +212,28 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 combined = sorted(zip(pieSlices, sliceColors))
                 sAngle = -90
                 for angle, curCol in combined:
-                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, sAngle, angle, curCol, -1)
-                    sAngle = angle
+                    fAngle = -90 + angle
+                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, fAngle, sAngle, curCol, -1)
+                    sAngle = fAngle
                 cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
             #check if hand one drew a line
             if isLine(drawingPoints) and sFinal:
                 print("here")
                 end = drawingPoints[-1]
                 start = drawingPoints[0]
-                centerDist = math.sqrt((end[0] - centerPx)**2 + (end[1] - centerPy))
+                centerDist = math.sqrt((end[0] - centerPx)**2 + (end[1] - centerPy)**2)
                 if centerDist < (sRadius * 1.5):
-                    dX = start[0] - centerPx
+                    dX = (start[0] - centerPx)
                     dY = start[1] - centerPy
                     sliceAngle = math.degrees(math.atan2(dY, dX))
                     if sliceAngle < 0:
                         sliceAngle += 360
 
-                    shiftAngle = (sliceAngle + 90) % 360
+                    shiftAngle = (sliceAngle - 90) % 360
                     lastAngle = max(pieSlices) if pieSlices else 0
                     if shiftAngle > lastAngle:
                         if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
-                            pieSlices.append(sliceAngle)
+                            pieSlices.append(shiftAngle)
                             newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
                             sliceColors.append(newColor)
                             drawingPoints = []
