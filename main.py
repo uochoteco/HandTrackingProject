@@ -74,6 +74,14 @@ def isLine(points):
     else:
         return False
 
+def isPinch(hand_landmarks):
+    thumb = hand_landmarks[4]
+    index = hand_landmarks[8]
+    tiDist = math.sqrt((thumb.x - index.x)**2 + (thumb.y - index.y)**2 + (thumb.z + index.z)**2)
+    if tiDist < 1:
+        return True
+    else:
+        return False
     
 with vision.HandLandmarker.create_from_options(options) as detector:
 
