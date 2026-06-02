@@ -97,6 +97,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     sOrigin = None
     sDiam = 0
     sFinal = False
+    centerPx = 0
+    centerPx = 0
+    sRadius = 0
     middle = None
     hOneS = None
     hTwoS = None
@@ -211,19 +214,36 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         if isFist(output.hand_landmarks[hIndex]):
                             sFinal = True
                             shapeMaking = False
-                    
+                            centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
+                            centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
+                            sRadius = (int)(sDiam/2)
+            #drawing code        
             if sFinal:
-                centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
-                centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
-                sRadius = (int)(sDiam/2)
-                cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
-                combined = sorted(zip(pieSlices, sliceColors))
-                sAngle = -90
-                for angle, curCol in combined:
-                    fAngle = -90 + angle
-                    cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, fAngle, sAngle, curCol, -1)
-                    sAngle = fAngle
-                cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
+                for hIndex, hLabel in enumerate(presentHands):
+                    if hLabel == hTwoS:
+                        middle = output.hand_landmarks[hIndex][9]
+                        if isPinch(output.hand_landmarks[hIndex]):
+                            centerPx = (int)(middle.x * image.shape[1])
+                            centerPy = (int)(middle.y * image.shape[0])
+                            if centerPx < 0 or centerPx > image.shape[1] or centerPy < 0 or centerPy > image.shape[0]:
+                                sFinal = False
+                                pieSlices = []
+                                sliceColors = []
+                                centerPx = 0
+                                centerPy = 0
+                                sRadius = 0
+                                break
+                        centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
+                        centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
+                        sRadius = (int)(sDiam/2)
+                        cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
+                        combined = sorted(zip(pieSlices, sliceColors))
+                        sAngle = -90
+                        for angle, curCol in combined:
+                            fAngle = -90 + angle
+                            cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, fAngle, sAngle, curCol, -1)
+                            sAngle = fAngle
+                        cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
             #check if hand one drew a line
             if isLine(drawingPoints) and sFinal:
                 print("here")
