@@ -237,9 +237,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                 if sFinal:
                     cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
                     combined = sorted(zip(pieSlices, sliceColors))
-                    sAngle = -90
+                    sAngle = 270
                     for angle, curCol in combined:
-                        fAngle = -90 + angle
+                        fAngle = 360 + angle
                         cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, sAngle, fAngle, curCol, -1)
                         sAngle = fAngle
                     cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
@@ -256,15 +256,12 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     if sliceAngle < 0:
                         sliceAngle += 360
 
-                    shiftAngle = (sliceAngle - 90) % 360
-                    lastAngle = max(pieSlices) if pieSlices else 0
-                    if shiftAngle > lastAngle:
-                        if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
-                            pieSlices.append(shiftAngle)
-                            newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
-                            sliceColors.append(newColor)
-                            drawingPoints = []
-                            print(f"{int(sliceAngle)}")
+                    if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
+                        pieSlices.append(sliceAngle)
+                        newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
+                        sliceColors.append(newColor)
+                        drawingPoints = []
+                        print(f"{int(sliceAngle)}")
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
