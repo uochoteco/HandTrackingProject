@@ -78,7 +78,8 @@ def isPinch(hand_landmarks):
     thumb = hand_landmarks[4]
     index = hand_landmarks[8]
     tiDist = math.sqrt((thumb.x - index.x)**2 + (thumb.y - index.y)**2 + (thumb.z - index.z)**2)
-    if tiDist < 0.4:
+    if tiDist < 0.04:
+        print("pinch")
         return True
     else:
         return False
@@ -233,17 +234,18 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                                 centerPy = 0
                                 sRadius = 0
                                 break
-                        centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
-                        centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
-                        sRadius = (int)(sDiam/2)
-                        cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
-                        combined = sorted(zip(pieSlices, sliceColors))
-                        sAngle = -90
-                        for angle, curCol in combined:
-                            fAngle = -90 + angle
-                            cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, fAngle, sAngle, curCol, -1)
-                            sAngle = fAngle
-                        cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
+                if sFinal:
+                    centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
+                    centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
+                    sRadius = (int)(sDiam/2)
+                    cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
+                    combined = sorted(zip(pieSlices, sliceColors))
+                    sAngle = -90
+                    for angle, curCol in combined:
+                        fAngle = -90 + angle
+                        cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, sAngle, fAngle, curCol, -1)
+                        sAngle = fAngle
+                    cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
             #check if hand one drew a line
             if isLine(drawingPoints) and sFinal:
                 print("here")
