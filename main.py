@@ -235,9 +235,6 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                                 sRadius = 0
                                 break
                 if sFinal:
-                    centerPx = (int)(((sOrigin[0] + middle.x)/2)*image.shape[1])
-                    centerPy = (int)(((sOrigin[1] + middle.y)/2)*image.shape[0])
-                    sRadius = (int)(sDiam/2)
                     cv2.circle(image, (centerPx, centerPy), sRadius, (40, 40, 40), -1)
                     combined = sorted(zip(pieSlices, sliceColors))
                     sAngle = -90
