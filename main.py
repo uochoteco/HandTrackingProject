@@ -77,8 +77,8 @@ def isLine(points):
 def isPinch(hand_landmarks):
     thumb = hand_landmarks[4]
     index = hand_landmarks[8]
-    tiDist = math.sqrt((thumb.x - index.x)**2 + (thumb.y - index.y)**2 + (thumb.z + index.z)**2)
-    if tiDist < 1:
+    tiDist = math.sqrt((thumb.x - index.x)**2 + (thumb.y - index.y)**2 + (thumb.z - index.z)**2)
+    if tiDist < 0.4:
         return True
     else:
         return False
