@@ -136,7 +136,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             handsAssigned[0] = True
                             hOneS = label
                         print(time.time() - timers[0])
-                    elif not handsAssigned[0]:
+                    elif not handsAssigned[0] and fingers != 1 and timers[0] > 0:
                         timers[0] = 0
                     progress = 0
                     if handsAssigned[0]:
@@ -154,7 +154,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             handsAssigned[1] = True
                             hTwoS = label
                         print(time.time() - timers[1])
-                    elif not handsAssigned[1]:
+                    elif not handsAssigned[1] and fingers != 2 and timers[1] > 0:
                         timers[1] = 0
                     progress = 0
                     if handsAssigned[1]:
