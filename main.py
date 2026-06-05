@@ -136,8 +136,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             handsAssigned[0] = True
                             hOneS = label
                         print(time.time() - timers[0])
-                    elif not handsAssigned[0] and fingers != 1 and timers[0] > 0:
-                        timers[0] = 0
+                    elif not handsAssigned[0] and timers[0] > 0:
+                        if not any(countFingers(h) == 1 for h in output.hand_landmarks):
+                            timers[0] = 0
                     progress = 0
                     if handsAssigned[0]:
                         progress = 1
@@ -154,8 +155,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                             handsAssigned[1] = True
                             hTwoS = label
                         print(time.time() - timers[1])
-                    elif not handsAssigned[1] and fingers != 2 and timers[1] > 0:
-                        timers[1] = 0
+                    elif not handsAssigned[1] and timers[1] > 0:
+                        if not any(countFingers(h) == 2 for h in output.hand_landmarks):
+                            timers[1] = 0
                     progress = 0
                     if handsAssigned[1]:
                         progress = 1
@@ -226,7 +228,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         if isPinch(output.hand_landmarks[hIndex]):
                             centerPx = (int)(middle.x * image.shape[1])
                             centerPy = (int)(middle.y * image.shape[0])
-                            if centerPx < 0 or centerPx > image.shape[1] or centerPy < 0 or centerPy > image.shape[0]:
+                            if centerPx < 10 or centerPx > image.shape[1] -10 or centerPy < 10 or centerPy > image.shape[0] - 10:
                                 sFinal = False
                                 pieSlices = []
                                 sliceColors = []
@@ -239,7 +241,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     combined = sorted(zip(pieSlices, sliceColors))
                     sAngle = 270
                     for angle, curCol in combined:
-                        fAngle = 360 + angle
+                        fAngle = angle + 270
                         cv2.ellipse(image, (centerPx, centerPy), (sRadius, sRadius), 0, sAngle, fAngle, curCol, -1)
                         sAngle = fAngle
                     cv2.line(image, (centerPx, centerPy),(centerPx, centerPy - sRadius), (255, 255, 255), 4)
@@ -256,8 +258,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     if sliceAngle < 0:
                         sliceAngle += 360
 
+                    shiftedAngle = (sliceAngle - 90) % 360
                     if not any(abs(sliceAngle - used) < 3 for used in pieSlices):
-                        pieSlices.append(sliceAngle)
+                        pieSlices.append(shiftedAngle)
                         newColor = (random.randint(50,255), random.randint(50,255), random.randint(50,255))
                         sliceColors.append(newColor)
                         drawingPoints = []
