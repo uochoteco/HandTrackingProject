@@ -83,6 +83,11 @@ def isPinch(hand_landmarks):
         return True
     else:
         return False
+
+def isThumbsUp(hand_landmarks):
+    fingersCurled = ((hand_landmarks[8].y > hand_landmarks[6].y) and (hand_landmarks[12].y > hand_landmarks[10].y) and (hand_landmarks[16].y > hand_landmarks[14].y) and (hand_landmarks[20].y > hand_landmarks[18].y))
+    thumbUpright = (hand_landmarks[4].y < hand_landmarks[2].y) and (hand_landmarks[4].y < hand_landmarks[6].y)
+    return fingersCurled and thumbUpright
     
 with vision.HandLandmarker.create_from_options(options) as detector:
 
@@ -106,6 +111,11 @@ with vision.HandLandmarker.create_from_options(options) as detector:
     hTwoS = None
     pieSlices = []
     sliceColors = []
+    pieMode = True
+    saveLines = []
+    cd = 0.0
+    thumbTimer = 0.0
+
     while capture.isOpened():
         works, image = capture.read()
         if not works:
@@ -113,7 +123,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         mpImage = mp.Image(image_format = mp.ImageFormat.SRGB, data = image_rgb)
         output = detector.detect(mpImage)
-
+        
         if output.hand_landmarks:
             for hand_in_frame in output.hand_landmarks:
                 connections = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6), (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12), (9, 13), (13, 14),
