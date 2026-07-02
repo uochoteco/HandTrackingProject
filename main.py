@@ -238,7 +238,7 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         if isPinch(output.hand_landmarks[hIndex]):
                             centerPx = (int)(middle.x * image.shape[1])
                             centerPy = (int)(middle.y * image.shape[0])
-                            if centerPx < 10 or centerPx > image.shape[1] -10 or centerPy < 10 or centerPy > image.shape[0] - 10:
+                            if centerPx < 20 or centerPx > image.shape[1] - 20 or centerPy < 20 or centerPy > image.shape[0] - 20:
                                 sFinal = False
                                 pieSlices = []
                                 sliceColors = []
