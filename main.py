@@ -278,9 +278,16 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         drawingPoints = []
                         print(f"{int(sliceAngle)}")
             for hIndex, hLabel in enumerate(presentHands):
-                if isThumbsUp(output.hand_landmarks[hIndex]):
-                    print("works")
-
+                if hLabel == hOneS:
+                    if isThumbsUp(output.hand_landmarks[hIndex]):
+                        print("works")
+                        if thumbTimer == 0:
+                            thumbTimer == time.time()
+                        elif time.time() - thumbTimer > 1:
+                            pieMode = False
+                            print("false")
+                    else:
+                        thumbTimer = 0
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
                         cv2.line(image, drawingPoints[i - 1], drawingPoints[i], (drawingColor[0], drawingColor[1], drawingColor[2]), 2)
