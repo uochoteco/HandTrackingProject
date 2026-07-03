@@ -85,10 +85,12 @@ def isPinch(hand_landmarks):
         return False
 
 def isThumbsUp(hand_landmarks):
-    fingersCurled = ((hand_landmarks[8].y > hand_landmarks[6].y) and (hand_landmarks[12].y > hand_landmarks[10].y) and (hand_landmarks[16].y > hand_landmarks[14].y) and (hand_landmarks[20].y > hand_landmarks[18].y))
-    thumbUpright = (hand_landmarks[4].y < hand_landmarks[2].y) and (hand_landmarks[4].y < hand_landmarks[6].y)
-    return fingersCurled and thumbUpright
-    
+    thumbUpright = (hand_landmarks[4].y < hand_landmarks[2].y) and (hand_landmarks[2].y < hand_landmarks[0].y) and (hand_landmarks[5].y < hand_landmarks[20].y) and (hand_landmarks[0].y < hand_landmarks[17].y)  
+    if thumbUpright:
+        return True
+    else:
+        return False
+
 with vision.HandLandmarker.create_from_options(options) as detector:
 
     capture = cv2.VideoCapture(0)
@@ -275,6 +277,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                         sliceColors.append(newColor)
                         drawingPoints = []
                         print(f"{int(sliceAngle)}")
+            for hIndex, hLabel in enumerate(presentHands):
+                if isThumbsUp(output.hand_landmarks[hIndex]):
+                    print("works")
 
             if len(drawingPoints) > 2:
                 for i in range(1, len(drawingPoints)):
