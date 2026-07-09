@@ -282,9 +282,9 @@ with vision.HandLandmarker.create_from_options(options) as detector:
                     if isThumbsUp(output.hand_landmarks[hIndex]):
                         print("works")
                         if thumbTimer == 0:
-                            thumbTimer == time.time()
+                            thumbTimer = time.time()
                         elif time.time() - thumbTimer > 1:
-                            pieMode = False
+                            pieMode = not pieMode
                             print("false")
                     else:
                         thumbTimer = 0
